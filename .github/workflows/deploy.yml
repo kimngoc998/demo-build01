@@ -22,8 +22,8 @@ jobs:
         npm install
         npm run build
         npm run test
-        npm list -g serve || npm install -g serve
-        serve -s build -l 3000
+        npm install -g serve
+        serve -s build
       
     - name: Deploy to Production
       uses: peaceiris/actions-gh-pages@v3
