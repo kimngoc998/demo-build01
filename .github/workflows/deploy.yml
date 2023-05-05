@@ -1,17 +1,37 @@
 
 name: Deploy Netlify site
-
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    env:
-      BIT_TOKEN: ${{ secrets.BIT_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v2
-      # run 
-      - name: Deploy site
-        run: curl -X POST -d {} ${{ sEcrets.NETLIFY_BUILD_HOOK }}
+    - uses: actions/checkout@v2
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+      
+    - name: Install dependencies and build
+      run: |
+        npm install
+        npm run build
+      
+    - name: Deploy to Production
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        personal_token: ${{ secrets.PERSONAL_TOKEN }}
+        publish_branch: gh-pages
+        publish_dir: ./build
+
+    - name: Trigger Netlify Build Hook
+      if: success()
+      env:
+        BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK }}
+      run: |
+        curl -X POST -d {} "${BUILD_HOOK_URL}"
