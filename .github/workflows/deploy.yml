@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [16.x, 18.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -21,11 +21,15 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
       
-    - name: Install dependencies, build and test
-      run: |
-        npm install
-        npm run build
-#        npm test
+    - name: npm Install
+      run: npm install
+      
+    - name: npm Build
+      run: npm run build
+      
+    - name: npm Tests
+      run: npm test
+        
 
     - name: Deploy to Netlify
       uses: netlify/actions/cli@master
