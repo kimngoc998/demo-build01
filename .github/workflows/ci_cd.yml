@@ -3,16 +3,16 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
-
+  deploy:
     runs-on: ubuntu-latest
-
+    
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node-version: [14.x, 16.x, 18.x]
 
     steps:
     - uses: actions/checkout@v2
@@ -20,6 +20,34 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - run: npm ci
-    - run: npm test
+      
+    - name: npm Install
+      run: npm install
+      
+    - name: npm Build
+      run: npm run build
+      
+    - name: npm Tests
+      run: npm test
+        
+
+    - name: Deploy to Netlify
+      uses: netlify/actions/cli@master
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BUILD_HOOK }}
+      with:
+        args: deploy --prod
+        
+#     - name: Deploy to Production
+#       uses: peaceiris/actions-gh-pages@v3
+#       with:
+#         personal_token: ${{ secrets.PERSONAL_TOKEN }}
+#         publish_branch: gh-pages
+#         publish_dir: ./build
+
+    - name: Trigger Netlify Build Hook
+      if: success()
+      env:
+        BUILD_HOOK_URL: ${{ secrets.NETLIFY_BUILD_HOOK }}
+      run: |
+        curl -X POST -d {} "${BUILD_HOOK_URL}"
