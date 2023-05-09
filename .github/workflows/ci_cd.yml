@@ -5,27 +5,21 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build:
+
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.x'
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Build and test
-        run: |
-          npm run build
-          CI=false npm test
-      
-      - name: Deploy to production
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm test
