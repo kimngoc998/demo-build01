@@ -1,5 +1,5 @@
-
 name: Deploy Netlify site
+
 on:
   push:
     branches:
@@ -19,9 +19,16 @@ jobs:
       
     - name: Install dependencies, build and test
       run: |
-        npm install
+        npm ci
         npm run build
         npm test
+
+    - name: Deploy to Netlify
+      uses: netlify/actions/cli@master
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_BUILD_HOOK }}
+      with:
+        args: deploy --prod
         
 #     - name: Deploy to Production
 #       uses: peaceiris/actions-gh-pages@v3
