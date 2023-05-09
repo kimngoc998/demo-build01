@@ -17,10 +17,30 @@ jobs:
       with:
         node-version: '14.x'
       
-    - name: Install dependencies and build
-      run: |
-        npm install
-        npm run build
+#     - name: Install dependencies and build
+#       run: |
+#         npm install
+#         npm run build
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build project
+      run: npm run build
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Deploy to server
+      uses: easingthemes/ssh-deploy@v2.0.9
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+        ssh-public-key: ${{ secrets.SSH_PUBLIC_KEY }}
+        remote-user: ${{ secrets.SSH_USER }}
+        remote-host: ${{ secrets.SSH_HOST }}
+        remote-port: ${{ secrets.SSH_PORT }}
+        source: './'
+        destination: '/var/www/myapp'
         
 #     - name: Deploy to Production
 #       uses: peaceiris/actions-gh-pages@v3
