@@ -29,8 +29,10 @@ jobs:
       
     - name: npm Tests
       run: npm test
+      
+    - name: npm Start
+      run: npm start
         
-
     - name: Deploy to Netlify
       uses: netlify/actions/cli@master
       env:
